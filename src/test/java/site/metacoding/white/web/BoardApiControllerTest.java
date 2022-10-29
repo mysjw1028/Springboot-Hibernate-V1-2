@@ -37,7 +37,7 @@ import site.metacoding.white.util.SHA256;
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK) // MOCK은 가짜 환경임
 public class BoardApiControllerTest {
 
-    private static final String APPLICATION_JSON = "application/json;charset=utf-8";
+    private static final String APPLICATION_JSON = "application/json; charset=utf-8";
 
     @Autowired
     private MockMvc mvc; // 이걸로 통신을 한다
@@ -93,7 +93,28 @@ public class BoardApiControllerTest {
 
         commentRepository.save(comment1);
         commentRepository.save(comment2);
+    }
 
+    @Test
+    public void save_test() throws Exception {
+        // given
+        
+        BoardSaveReqDto boardSaveReqDto = new BoardSaveReqDto();
+        boardSaveReqDto.setTitle("스프링1강");
+        boardSaveReqDto.setContent("트랜잭션관리");
+
+        String body = om.writeValueAsString(boardSaveReqDto);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(MockMvcRequestBuilders.post("/board").content(body)
+                        .contentType(APPLICATION_JSON).accept(APPLICATION_JSON)
+                        .session(session));
+
+        // then
+        MvcResult mvcResult = resultActions.andReturn();
+        System.out.println("디버그 : " + mvcResult.getResponse().getContentAsString());
+        resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1L));
     }
 
     @Test
@@ -113,29 +134,6 @@ public class BoardApiControllerTest {
     }// 상태코드 200이걸 체크 MockMvcResultMatchers
 
     @Test
-    public void save_test() throws Exception {
-        // given
-        BoardSaveReqDto boardSaveReqDto = new BoardSaveReqDto();
-        boardSaveReqDto.setTitle("스프링1강");
-        boardSaveReqDto.setContent("트랜잭션관리");
-
-        String body = om.writeValueAsString(boardSaveReqDto); // json 변경
-
-        // when
-        ResultActions resultActions = mvc
-                .perform(MockMvcRequestBuilders.post("/board").content(body)// post안에 , 해서 넣을수있다 -> 쿼리스트림
-                        .contentType(APPLICATION_JSON).accept(APPLICATION_JSON)// 둘 중 하나라도 안적으면 안나옴 -> json타입인줄 몰라서
-                        .session(session));// 가짜세션!!
-
-        // then/ charset=utf-8안넣으면바로한글이깨진다
-
-        MvcResult mvcResult = resultActions.andReturn();
-        System.out.println("디버그 : " + mvcResult.getResponse().getContentAsString());
-        resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1L));
-
-    }
-
-    @Test
     public void findAll_test() throws Exception {
         // given
 
@@ -149,27 +147,27 @@ public class BoardApiControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1L));
         resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.data.[0].title").value("스프링1강"));
-
     }
 
     @Test
-    public void updateById_test() throws Exception {
+    public void update_test() throws Exception {
         // given
         Long id = 1L;
         BoardUpdateReqDto boardUpdateReqDto = new BoardUpdateReqDto();
         boardUpdateReqDto.setTitle("스프링2강");
-        boardUpdateReqDto.setContent("Junit공부");
+        boardUpdateReqDto.setContent("JUNIT공부");
 
-        String body = om.writeValueAsString(boardUpdateReqDto); // json 변경
+        String body = om.writeValueAsString(boardUpdateReqDto);
+        // json 변경
 
         // when
         ResultActions resultActions = mvc
-                .perform(MockMvcRequestBuilders.put("/board/" + id).content(body)// post안에 , 해서 넣을수있다 -> 쿼리스트림
-                        .contentType(APPLICATION_JSON).accept(APPLICATION_JSON)// 둘 중 하나라도 안적으면 안나옴 -> json타입인줄 몰라서
-                        .session(session));// 가짜세션!!
+                .perform(MockMvcRequestBuilders.put("/board/" + id).content(body)
+                        // post안에 , 해서 넣을수있다 -> 쿼리스트림
+                        .contentType(APPLICATION_JSON).accept(APPLICATION_JSON) // 둘 중 하나라도 안적으면 안나옴 -> json타입인줄 몰라서
+                        .session(session)); // 가짜세션!!
 
         // then/ charset=utf-8안넣으면바로한글이깨진다
-
         MvcResult mvcResult = resultActions.andReturn();
         System.out.println("디버그 : " + mvcResult.getResponse().getContentAsString());
         resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1L));
@@ -183,7 +181,7 @@ public class BoardApiControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(MockMvcRequestBuilders.delete("/board/" + id)
-                        .contentType(APPLICATION_JSON).accept(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
                         .session(session));
 
         // then/ charset=utf-8안넣으면바로한글이깨진다

@@ -13,6 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,11 +32,12 @@ public class Board {
     private String content;
 
     // FK가 만들어짐. user_id
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     // 조회를 위해서만 필요함
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OnDelete(action = OnDeleteAction.CASCADE) // 양방향 매핑시 걸어준다.
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     public void addComment(Comment comment) {
@@ -53,5 +57,4 @@ public class Board {
         this.title = title;
         this.content = content;
     }
-
 }
