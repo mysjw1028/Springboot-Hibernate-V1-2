@@ -133,7 +133,7 @@ public class BoardApiControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value("스프링1강"));
     }// 상태코드 200이걸 체크 MockMvcResultMatchers
 
-    @Test
+    @Test//dd
     public void findAll_test() throws Exception {
         // given
 
