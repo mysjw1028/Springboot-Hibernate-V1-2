@@ -79,7 +79,7 @@ public class JwtAuthenticationFilter implements Filter {
                 .withSubject("메타코딩")
                 .withExpiresAt(expire)
                 .withClaim("id", userPS.getId())
-                .withClaim("username", userPS.getUsername())
+                .withClaim("username", userPS.getUsername())// 안전한 값 -> 서버가 만들어준 데이터 -> 노출되도 괜찮
                 .sign(Algorithm.HMAC512("뺑소니"));
         log.debug("디버그 : " + jwtToken);
 
